@@ -7,6 +7,7 @@ class Consola
   def initialize
   @controller = Controller.new
   @running = true
+ # @controller.load_data
   end  
 
   def run
@@ -44,18 +45,14 @@ class Consola
     when "whoami"
       @controller.whoami
     when "logout"
-     # @controller.save_data
       @controller.logout
     when 'exit'
-      #@controller.save_data
       @running = false
     end
   
   end
 
 end
-file_path = File.join(__dir__, "files.csv")
-folder_path = File.join(__dir__, "folders.csv")
 consola=Consola.new
 consola.run
 

@@ -13,18 +13,17 @@ attr_accessor :persistence_file, :persistence_folder
 
   @persistence_file = File.join(__dir__, "files.csv")
   @persistence_folder = File.join(__dir__, "folders.csv")
-  #load_from_file if @persistence_file
-  #load_from_folder if @persistence_folder
-
 
   end
 
   def add_file(file)
     @files << file
+   # save_to_file
   end
 
   def add_folder(folder)
     @folders << folder
+   # save_to_folder
   end
 
   def find(file_name)
@@ -63,42 +62,64 @@ attr_accessor :persistence_file, :persistence_folder
   end
 
   def load_from_file
-    CSV.read(@persistence_file) do |row|
-      name = row[0]
-      content = row[1]
-      metadata = row[2]
+    files = CSV.parse(File.read(@persistence_file))
+    files.each do |file|
+      name = file[0]
+      content = file[1]
+      metadata = file[2]
       @files << File.new(name, content, metadata)
     end
   end
 
   def load_from_folder
-    CSV.foreach(@persistence_folder) do |row|
-      name = row[0]
-      parent_directory = row[1]
+    folders = CSV.parse(File.read(@persistence_folder))
+    folders.each do |folder|
+      array_folder = folder.pop.split(",")
+      name = array_folder[0]
+      if array_folder[1].split("/").pop.nil?
+        parent_directory = Directory.new("/")
+      else
+        folders_pd = array_folder[1].split("/").reject(&:empty?).compact
+        folders_pd.each_with_index do |folder, index|
+          if index == 0
+            parent_directory = Directory.new(folder)
+          else
+            parent_directory = Directory.new(folder, Directory.new(folders_pd[index-1]))
+          end 
+        end
+      end     
       @folders << Directory.new(name, parent_directory)
     end
+    p @folders
   end
+ 
   def save_to_file
-    file_path = File.expand_path("files.csv", __dir__)
-    begin
-      CSV.parse(file_path, headers: true) do |csv|
-        csv << ['Columna 1', 'Columna 2', 'Columna 3']
-        csv << ['Valor 1', 'Valor 2', 'Valor 3']
+    puts @persistence_file
+    puts @files
+
+    CSV.open(@persistence_file, "wb", encoding: 'ISO-8859-1:UTF-8') do |csv|
+      csv << ['Nombre', 'Contenido', 'Metadatos']  # Escribir encabezados de columna
+  
+      @files.each do |file|
+        csv << [file.name, file.content, file.metadata]  # Escribir una fila de valores
       end
-    rescue => e
-      puts "Error al guardar el archivo CSV: #{e.message}"
-      puts e.backtrace
     end
   end
   
-  
-  
-  def save_to_folder
-    CSV.open(@persistence_folder, "wb") do |csv|
-      @folders.each do |folder|
-        csv << [folder.name, folder.parent_directory]
-      end
+
+
+def save_to_folder
+    data = []
+    @folders.each do |folder|
+      p folder.parent_directory.name
+      directory = "#{folder.parent_directory.name}/#{folder.name}"
+
+      p folder.name
+      p directory
+      data << "#{folder.name}, #{directory}"  # Agregar datos al arreglo
     end
+    p data.flatten
+    File.write(@persistence_folder, data)
   end
   
 

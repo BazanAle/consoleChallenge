@@ -140,9 +140,9 @@ end
     end
   end
 
- def save_data
-  @current_directory.save_to_file
- @current_directory.save_to_folder
+ def load_data
+ @current_directory.load_from_file
+ @current_directory.load_from_folder
  end
 end
 
