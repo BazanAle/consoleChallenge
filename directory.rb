@@ -5,18 +5,17 @@ class Directory
 attr_reader :name, :parent_directory
 attr_accessor :persistence_file, :persistence_folder
 
-  def initialize(name, parent_directory=nil,persistence_file = nil, persistence_folder = nil)
+  def initialize(name, parent_directory=nil)
   @name = name
   @parent_directory = parent_directory
   @files = []
   @folders = []
 
-  @csv = persistence_file
-  @persistence_folder = persistence_folder
- # load_from_file if @persistence_file
- # load_from_folder if @persistence_folder
- p  @persistence_file
- p  @persistence_folder
+  @persistence_file = File.join(__dir__, "files.csv")
+  @persistence_folder = File.join(__dir__, "folders.csv")
+  #load_from_file if @persistence_file
+  #load_from_folder if @persistence_folder
+
 
   end
 
@@ -64,7 +63,7 @@ attr_accessor :persistence_file, :persistence_folder
   end
 
   def load_from_file
-    CSV.foreach(@persistence_file) do |row|
+    CSV.read(@persistence_file) do |row|
       name = row[0]
       content = row[1]
       metadata = row[2]
@@ -80,12 +79,18 @@ attr_accessor :persistence_file, :persistence_folder
     end
   end
   def save_to_file
-    CSV.open("/home/nataliagatti/Alejandro/consoleChallenge/persistence_folder.csv", "w") do |csv|
-      csv << ['Columna 1', 'Columna 2', 'Columna 3']  # Escribir encabezados de columna
-  csv << ['Valor 1', 'Valor 2', 'Valor 3']        # Escribir una fila de valores
-  # Puedes agregar más filas según sea necesario
-end
+    file_path = File.expand_path("files.csv", __dir__)
+    begin
+      CSV.parse(file_path, headers: true) do |csv|
+        csv << ['Columna 1', 'Columna 2', 'Columna 3']
+        csv << ['Valor 1', 'Valor 2', 'Valor 3']
+      end
+    rescue => e
+      puts "Error al guardar el archivo CSV: #{e.message}"
+      puts e.backtrace
+    end
   end
+  
   
   
   def save_to_folder

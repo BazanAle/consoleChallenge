@@ -6,8 +6,8 @@ require_relative "user"
 class Controller
 
   attr_reader :current_directory, :current_user  
-  def initialize(file_path, folder_path)
-    @current_directory = Directory.new("/", nil , file_path, folder_path)
+  def initialize
+    @current_directory = Directory.new("/")
     @current_user = nil
     @users = []
   end
@@ -19,12 +19,20 @@ class Controller
   end
 #Ver contenido de un archivo(show file_1)
   def show (file_name)
+    if @current_directory.find(file_name)
     puts @current_directory.find(file_name).content
+    else
+      puts "No existe archivo con el nombre ingresado para mostrar el contenido."
+    end
   end
 
 #Ver metadata del archivo(metadata file_1)
   def metadata(file_name)
+    if @current_directory.find(file_name)
     puts @current_directory.find(file_name).metadata
+    else
+      puts "No existe archivo con el nombre ingresado para mostrar metadata."
+    end
   end
 
 #Crear una carpeta(create_folder folder_1)
@@ -57,11 +65,23 @@ class Controller
     file = @current_directory.find(name)
     folder =@current_directory.find_folder(name)
     if file
-    @current_directory.remove_file(file)
-      puts "Se ha eliminado el file #{file.name}"
-    elsif folder
+     puts  "Está seguro de que desea eliminar el archivo #{file.name}? (Y/N)"
+     input = gets.chomp 
+      if input == "Y" || input == "y"
+        @current_directory.remove_file(file)
+        puts "Se ha eliminado el file #{file.name}"
+      else
+        puts ""
+      end
+   elsif folder
+    puts  "Está seguro de que desea eliminar la carpeta #{folder.name}? (Y/N)"
+    input = gets.chomp 
+    if input == "Y" || input == "y"
       @current_directory.remove_folder(folder)
       puts "Se ha eliminado la carpeta #{folder.name}"
+     else
+      puts ""
+     end
     else
       puts 'No existe ni archivo ni carpeta con el nombre ingresado'
   end
@@ -122,7 +142,7 @@ end
 
  def save_data
   @current_directory.save_to_file
-#  @current_directory.save_to_folder
+ @current_directory.save_to_folder
  end
 end
 
