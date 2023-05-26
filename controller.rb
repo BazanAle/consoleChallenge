@@ -1,11 +1,15 @@
+require "csv"
 require_relative "file"
 require_relative "directory"
+require_relative "user"
+
 class Controller
 
-  attr_reader :current_directory
-  def initialize
-    @current_directory = Directory.new("/")
-
+  attr_reader :current_directory, :current_user  
+  def initialize(file_path, folder_path)
+    @current_directory = Directory.new("/", nil , file_path, folder_path)
+    @current_user = nil
+    @users = []
   end
 
 #Crear archivo con contenido(create_file file_1 "Contenido")
@@ -73,5 +77,52 @@ def whereami
   @current_directory.path
 end
 
+#Crear un usuario nuevo con su password
+  def create_user(username, password)
+    user = User.new(username, password)
+    @current_user = user
+    @users << user
+    puts "Usuario creado exitosamente."
+    
+  end
+
+#Loguearte como usuario
+  def login(username, password)
+    user = @users.find{|user| user.user_name == username}
+    if user
+      if user.authenticate(password)
+        puts "Usuario logueado correctamente."
+        @current_user = user
+      else
+        puts "Password incorrecto."
+      end
+    else
+      puts "Usuario inexistente."
+    end
+  end
+#Ver username actual
+
+  def whoami
+    if @current_user
+    puts "El usuario actual es #{@current_user.user_name}."
+    else
+    puts "No existe usuario logueado."
+    end
+  end
+
+  #Mejora: Logout
+  def logout
+    if @current_user
+      puts "El usuario #{@current_user.user_name} ha sido deslogueado."
+      @current_user = nil
+    else
+      puts "No existe usuario logueado."  
+    end
+  end
+
+ def save_data
+  @current_directory.save_to_file
+#  @current_directory.save_to_folder
+ end
 end
 

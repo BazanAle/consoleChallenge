@@ -1,12 +1,11 @@
-require "date"
+require "csv"
 
 class File
-attr_reader :name, :content, :metadata
+  attr_reader :name, :content, :metadata
 
-  def initialize(name,content)
+  def initialize(name, content, metadata = nil)
     @name = name
     @content = content
-    @metadata = "Nombre: #{name} / Empresa: ShipNow / Fecha #{Date.today}"
+    @metadata = metadata || "Nombre: #{name} / Empresa: ShipNow"
   end
-
 end

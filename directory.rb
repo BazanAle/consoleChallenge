@@ -1,11 +1,23 @@
+require "csv"
+require_relative "file"
+
 class Directory
 attr_reader :name, :parent_directory
+attr_accessor :persistence_file, :persistence_folder
 
-  def initialize(name, parent_directory=nil)
+  def initialize(name, parent_directory=nil,persistence_file = nil, persistence_folder = nil)
   @name = name
   @parent_directory = parent_directory
   @files = []
   @folders = []
+
+  @csv = persistence_file
+  @persistence_folder = persistence_folder
+ # load_from_file if @persistence_file
+ # load_from_folder if @persistence_folder
+ p  @persistence_file
+ p  @persistence_folder
+
   end
 
   def add_file(file)
@@ -50,5 +62,39 @@ attr_reader :name, :parent_directory
       puts @name
     end
   end
+
+  def load_from_file
+    CSV.foreach(@persistence_file) do |row|
+      name = row[0]
+      content = row[1]
+      metadata = row[2]
+      @files << File.new(name, content, metadata)
+    end
+  end
+
+  def load_from_folder
+    CSV.foreach(@persistence_folder) do |row|
+      name = row[0]
+      parent_directory = row[1]
+      @folders << Directory.new(name, parent_directory)
+    end
+  end
+  def save_to_file
+    CSV.open("/home/nataliagatti/Alejandro/consoleChallenge/persistence_folder.csv", "w") do |csv|
+      csv << ['Columna 1', 'Columna 2', 'Columna 3']  # Escribir encabezados de columna
+  csv << ['Valor 1', 'Valor 2', 'Valor 3']        # Escribir una fila de valores
+  # Puedes agregar más filas según sea necesario
+end
+  end
+  
+  
+  def save_to_folder
+    CSV.open(@persistence_folder, "wb") do |csv|
+      @folders.each do |folder|
+        csv << [folder.name, folder.parent_directory]
+      end
+    end
+  end
+  
 
 end
