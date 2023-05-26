@@ -1,10 +1,11 @@
+require "csv"
 require_relative "controller"
 
 
 class Consola
 
-  def initialize
-  @controller = Controller.new
+  def initialize(file_path, folder_path)
+  @controller = Controller.new(file_path, folder_path)
   @running = true
   end  
 
@@ -36,15 +37,27 @@ class Consola
       @controller.ls
     when "whereami"
       @controller.whereami
+    when "create_user"
+      @controller.create_user(args[0], args[1])
+    when "login"
+      @controller.login(args[0], args[1])
+    when "whoami"
+      @controller.whoami
+    when "logout"
+      @controller.save_data
+      @controller.logout
     when 'exit'
+      @controller.save_data
       @running = false
     end
   
   end
 
 end
-
-Consola.new.run
+file_path = File.join(__dir__, "persistence_file.csv")
+folder_path = File.join(__dir__, "persistence_folder.csv")
+consola=Consola.new(file_path,folder_path)
+consola.run
 
 #Crear archivo con contenido(create_file file_1 "Contenido")
 
